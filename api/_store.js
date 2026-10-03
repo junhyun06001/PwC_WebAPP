@@ -3,7 +3,7 @@
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 
-const AGES = ["20", "30", "40", "50"];
+const AGES = ["10", "20", "30", "40", "50", "60", "70"]; // 70 = 70세 이상
 const MIN_SHOW = 5; // 프론트(index.html)의 MIN_SHOW와 같은 값
 const TTL_SECONDS = 3 * 24 * 60 * 60; // 지난 날짜 집계는 3일 뒤 자동 삭제
 

@@ -259,25 +259,26 @@ details.guide[open] summary::after{content:"－"}
 <script>
 (function(){
   "use strict";
-  // 기준 통계: KISDI STAT Report 「스마트폰과 TV의 시간 점유율 경쟁」 [그림 4], 2023년, 이용자 기준 하루 평균(분)
-  var AVG={"20":198.6,"30":163.1,"40":128.1,"50":102.9};
+  // 기준 통계: 「2025년 방송매체 이용행태 조사」 [그림 2-8-3] 연령별 스마트폰 하루 평균 이용시간(음성통화 제외, 이용자 기준, 분)
+  var AVG={"10":181,"20":197,"30":162,"40":140,"50":119,"60":87,"70":54};
+  function ageLabel(k){return k==="70"?"70세 이상":k+"대";}
   var MIN_SHOW=5;
-  var SOURCE="기준 통계: KISDI STAT Report 「스마트폰과 TV의 시간 점유율 경쟁」, 2023년 연령대별 하루 평균 스마트폰 이용시간(이용자 기준). 설문 응답 수치라 기기 스크린타임과 차이가 있을 수 있어요.";
+  var SOURCE="기준 통계: 「2025년 방송매체 이용행태 조사」 연령별 스마트폰 하루 평균 이용시간(음성통화 제외, 스마트폰 이용자 7,969명). 설문 응답 수치라 기기 스크린타임과 차이가 있을 수 있어요.";
 
   // ── 계산 로직
   function fmt(min){var m=Math.round(Math.abs(min)),h=Math.floor(m/60),r=m%60;
     if(h===0)return r+"분"; if(r===0)return h+"시간"; return h+"시간 "+r+"분";}
-  function tier(ratio){return ratio<90?"good":ratio<110?"mid":"over";}
+  function tier(ratio){return ratio<90?"good":ratio<=110?"mid":"over";}
   var TIER={
-    good:{emoji:"😄",text:"또래보다 적게 사용하는 편이에요.",sub:"지금 습관을 잘 유지하고 있어요."},
-    mid:{emoji:"🙂",text:"또래와 비슷하게 사용하는 편이에요.",sub:"평균 수준이지만, 조금만 줄여도 시간이 생겨요."},
+    good:{emoji:"😄",text:"또래보다 적게 사용하는 편이에요.",sub:"현재 사용 수준을 잘 유지하고 있어요."},
+    mid:{emoji:"🙂",text:"또래와 비슷하게 사용하는 편이에요.",sub:"또래 평균과 비슷한 사용 수준입니다."},
     over:{emoji:"😫",text:"또래보다 많이 사용하는 편이에요.",sub:"생각보다 높은 사용 수준입니다."}
   };
   function compute(age,minutes){
     var avg=AVG[age],diff=minutes-avg,ratio=minutes/avg*100,gain=diff>0?diff:30;
     return {age:age,minutes:minutes,avg:avg,diff:diff,ratio:ratio,tier:tier(ratio),gain:gain,yearHours:gain*365/60,toAvg:diff>0};
   }
-  window.__amio={compute:compute,fmt:fmt};
+  window.__amio={compute:compute,fmt:fmt,ageLabel:ageLabel,AVG:AVG};
 
   var $=function(id){return document.getElementById(id);};
   function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
@@ -423,7 +424,7 @@ details.guide[open] summary::after{content:"－"}
   var DOWN='<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22l8-9h-5V2H9v11H4z"/></svg>';
   var EQ='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 9h14M5 15h14"/></svg>';
   function renderResult(){
-    var r=state.result,T=TIER[r.tier],al=r.age+"대",d=Math.round(r.diff);
+    var r=state.result,T=TIER[r.tier],al=ageLabel(r.age),d=Math.round(r.diff);
     $("myTime").textContent=fmt(r.minutes);
     $("avgLabel").textContent=al+" 평균"; $("avgTime").textContent=fmt(r.avg);
     $("dirIco").innerHTML=d>0?UP:d<0?DOWN:EQ;
@@ -441,7 +442,7 @@ details.guide[open] summary::after{content:"－"}
 
   // ── STEP 3
   function renderAction(){
-    var r=state.result,al=r.age+"대";
+    var r=state.result,al=ageLabel(r.age);
     if(r.toAvg){$("s3Title").innerHTML="조금만 줄여도<br>이만큼의 시간이 생겨요"; $("reclaimLabel").textContent=al+" 평균 수준까지 줄인다면";}
     else{$("s3Title").innerHTML="이미 평균보다 적어요.<br>30분만 더 줄여볼까요?"; $("reclaimLabel").textContent="지금보다 하루 30분만 줄인다면";}
     $("dayGain").textContent=fmt(r.gain);
