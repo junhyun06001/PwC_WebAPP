@@ -506,10 +506,12 @@ details.guide[open] summary::after{content:"－"}
   }
   function endWatch(){onS3=false; if(stopWatch){stopWatch();stopWatch=null;}}
   function submitOnce(){
-    if(lsGet("amio_submitted"))return;
+    // 참가자 평균은 한국 시간 날짜별로 집계되므로, 제출 여부도 날짜 단위로 기억
+    var today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);
+    if(lsGet("amio_submitted")===today)return;
     var r=state.result;
     storeReady.then(function(s){if(!s)return;
-      return s.submit(r.age,r.minutes).then(function(res){lsSet("amio_submitted",new Date().toISOString());
+      return s.submit(r.age,r.minutes).then(function(res){lsSet("amio_submitted",today);
         if(res&&res.groups){lastStats=res.groups;renderCrowd(res.groups);}});
     }).catch(function(){ /* 다음에 STEP 3을 열 때 다시 시도 */ });
   }

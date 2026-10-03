@@ -1,4 +1,4 @@
-const { configured, redis, readGroups, KEY, AGES } = require("./_store");
+const { configured, submitEntry, AGES } = require("./_store");
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
@@ -20,9 +20,8 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // 같은 브라우저 id로 다시 보내면 덮어써서 중복 집계되지 않음
-    await redis(["HSET", KEY, id, `${age}:${Math.round(minutes)}`]);
-    const groups = await readGroups();
+    // 같은 날 같은 브라우저 id로 다시 보내면 덮어써서 중복 집계되지 않음
+    const groups = await submitEntry(id, age, minutes);
     res.setHeader("Cache-Control", "no-store");
     return res.status(200).json({ ok: true, groups });
   } catch (err) {
