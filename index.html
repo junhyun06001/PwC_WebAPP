@@ -1,16 +1,530 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PwC WebApp</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <main class="page">
-    <h1>PwC WebApp</h1>
-    <p>2026 신규입사자 Pre-boarding 조별 프로젝트</p>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Am I Over?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: 기획안 p.10 와이어프레임 그대로 — STEP 알약 + 휴대폰 한 화면 + 카드 묶음. 색은 기획안 PPT(PwC 오렌지 팔레트), 밝은 단일 테마. */
+:root{
+  color-scheme:light;
+  --orange:#FD5108; --orange-2:#FE7C39; --orange-3:#FFAA72; --peach:#FFE8D4; --peach-2:#FFF4EB; --peach-line:#FFCDA8;
+  --ink:#23262B; --grey:#6A727C; --grey-2:#A1A8B3; --line:#E4E6E9; --chip:#EEEFF1; --bg:#F7F7F8; --white:#FFFFFF; --brown:#7D2D00;
+  --font:"Pretendard","Noto Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;padding:0 16px;color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+.stage{max-width:420px;margin:0 auto;padding-block:20px 40px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.stepnav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
+.stepnav span{font-size:12px;font-weight:700;color:var(--grey-2);padding:4px 10px;border-radius:999px;background:var(--chip)}
+.stepnav span[aria-current="step"]{background:var(--orange);color:var(--white);font-size:15px;padding:8px 22px;box-shadow:0 4px 12px rgba(253,81,8,.25)}
+.stepnav i{color:var(--orange-3);font-style:normal;font-weight:800}
+.phone{width:100%;background:var(--white);border-radius:28px;padding:26px 18px 22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 0 0 1px var(--line)}
+@media (min-width:480px){.phone{border-radius:44px;box-shadow:0 0 0 10px #DFE3E6,0 0 0 11px #CBD1D6,0 18px 40px rgba(35,38,43,.12);padding:34px 22px 26px;margin-block:10px 14px}}
+h1{font-size:25px;font-weight:800;line-height:1.35;margin:4px 2px 4px;text-wrap:balance;letter-spacing:-.03em}
+h1.center{text-align:center;font-size:22px}
+.card{border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--white)}
+.bar{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;margin:0}
+.bar::before{content:"";width:4px;height:18px;background:var(--orange);border-radius:1px}
+.ages{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ages button{font:inherit;font-size:16px;padding:12px 0;border-radius:10px;border:1.5px solid var(--chip);background:var(--chip);color:var(--ink);cursor:pointer}
+.ages button[aria-pressed="true"]{background:var(--peach);border-color:var(--orange-2);color:var(--orange);font-weight:700}
+.time{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.spin{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:10px;padding:4px 4px 4px 14px;flex:1 1 0;min-width:0}
+.spin:focus-within{border-color:var(--orange-2)}
+.spin input{width:100%;min-width:0;border:0;outline:none;background:transparent;font:800 28px/1.2 var(--font);color:var(--ink);padding:6px 0;font-variant-numeric:tabular-nums}
+.spin input::placeholder{color:var(--line)}
+.arrows{display:flex;flex-direction:column}
+.arrows button{border:0;background:none;color:var(--grey-2);cursor:pointer;padding:0 8px;font-size:11px;line-height:18px}
+.arrows button:hover{color:var(--orange)}
+.unit{color:var(--grey);font-size:15px;margin-right:4px}
+.btn{font:inherit;font-weight:700;font-size:17px;padding:16px;border:0;border-radius:14px;background:var(--orange);color:var(--white);cursor:pointer;width:100%;box-shadow:0 6px 14px rgba(253,81,8,.22)}
+.btn:hover{background:#E84A07}
+.btn:disabled{opacity:.5;cursor:default}
+.btn:focus-visible,.ages button:focus-visible,.textbtn:focus-visible,.arrows button:focus-visible{outline:3px solid var(--orange-3);outline-offset:2px}
+.note{display:flex;align-items:center;gap:6px;justify-content:center;color:var(--grey);font-size:13px;margin:0;text-align:center}
+.err{color:var(--orange);font-weight:700;font-size:14px;margin:0;text-align:center}
+
+/* STEP 2 */
+.tile{display:flex;align-items:center;gap:14px;border-radius:14px;padding:14px 16px}
+.tile.warm{background:var(--peach-2);border:1px solid var(--peach)}
+.tile.cool{background:var(--bg);border:1px solid var(--chip)}
+.ico{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none}
+.warm .ico{background:var(--peach);color:var(--orange)}
+.cool .ico{background:transparent;color:var(--grey-2)}
+.tile .k{font-size:14px;color:var(--grey);margin:0}
+.tile .v{font-size:28px;font-weight:800;margin:0;line-height:1.25;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.tile .v.o{color:var(--orange)}
+.tile .v.m{font-size:22px}
+.tile .s{font-size:13px;color:var(--grey);margin:2px 0 0}
+.tile .s b{color:var(--orange);font-size:15px}
+.tile > div{min-width:0}
+.face{text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0}
+.emoji{font-size:76px;line-height:1.1}
+.verdict{font-size:18px;font-weight:800;margin:4px 0 0}
+.sub{font-size:14px;color:var(--grey-2);margin:0}
+
+/* STEP 3 */
+.head{display:flex;align-items:center;gap:10px;font-size:15px;margin:0}
+.head svg{color:var(--orange);flex:none}
+.head.g svg{color:var(--grey-2)}
+.box{background:var(--peach-2);border-radius:12px;padding:14px;text-align:center}
+.box .v{font-size:28px;font-weight:800;color:var(--orange);margin:0;line-height:1.3;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.box .v small{font-size:22px}
+.box .s{margin:2px 0 0;color:var(--grey);font-size:14px}
+.box .wait{font-size:15px;color:var(--grey);margin:0;font-weight:500}
+.foot{font-size:12px;color:var(--grey-2);margin:0;text-align:center;line-height:1.55}
+.links{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.textbtn{font:inherit;font-size:14px;color:var(--grey);background:none;border:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px}
+.src{font-size:11px;color:var(--grey-2);margin:0;text-align:center;max-width:380px;line-height:1.5}
+/* 평균 vs 나 막대 비교 */
+.cmp{display:flex;flex-direction:column;gap:10px;padding:2px 2px 0}
+.cmp .row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;font-size:13px}
+.cmp .row .who{color:var(--grey);white-space:nowrap;min-width:28px}
+.cmp .row .t{font-weight:700;font-variant-numeric:tabular-nums;min-width:74px;text-align:right}
+.cmp .track{height:14px;border-radius:7px;background:var(--chip);overflow:hidden}
+.cmp .fill{height:100%;border-radius:7px;width:0;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.cmp .fill.me{background:var(--orange)} .cmp .fill.avg{background:var(--grey-2)}
+.cmp .row.me .t{color:var(--orange)}
+.sample{font:inherit;font-size:13px;color:var(--orange);background:none;border:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:2px 4px}
+@media (prefers-reduced-motion:reduce){.cmp .fill{transition:none}}
+/* 캡처 자동 입력 */
+.shoot{position:relative;display:flex;align-items:center;gap:12px;width:100%;font:inherit;text-align:left;padding:14px 16px;border-radius:14px;border:1.5px dashed var(--orange-3);background:var(--peach-2);color:var(--ink);cursor:pointer}
+.shoot:hover{border-color:var(--orange)}
+.shoot:focus-visible{outline:3px solid var(--orange-3);outline-offset:2px}
+.shoot .cam{width:44px;height:44px;border-radius:12px;background:var(--orange);color:var(--white);display:grid;place-items:center;flex:none}
+.shoot b{display:block;font-size:15px}
+.shoot small{display:block;font-size:12px;color:var(--grey);margin-top:1px}
+.scan{display:flex;gap:12px;align-items:center;padding:10px;border-radius:14px;background:var(--bg);border:1px solid var(--chip)}
+.thumb{position:relative;width:58px;height:96px;border-radius:10px;overflow:hidden;flex:none;background:var(--chip)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb::after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--orange);box-shadow:0 0 12px 3px rgba(253,81,8,.55);top:0;animation:sweep 1.3s ease-in-out infinite alternate}
+.scan.done .thumb::after{display:none}
+@keyframes sweep{to{top:calc(100% - 3px)}}
+.scan .msg{min-width:0;font-size:14px;margin:0}
+.scan .msg b{color:var(--orange)}
+.prog{height:6px;border-radius:3px;background:var(--chip);overflow:hidden;margin-top:6px}
+.prog i{display:block;height:100%;width:0;background:var(--orange);transition:width .3s}
+.cands{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.cands button{font:inherit;font-size:13px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);cursor:pointer}
+.cands button[aria-pressed="true"]{border-color:var(--orange);color:var(--orange);font-weight:700;background:var(--peach-2)}
+.or{display:flex;align-items:center;gap:10px;color:var(--grey-2);font-size:12px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.spin.flash{animation:flash 1s ease}
+@keyframes flash{0%{background:var(--peach);border-color:var(--orange)}100%{background:transparent}}
+details.guide{border-top:1px solid var(--line);padding-top:10px}
+details.guide summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--grey);list-style:none;display:flex;align-items:center;gap:6px}
+details.guide summary::-webkit-details-marker{display:none}
+details.guide summary::after{content:"＋";margin-left:auto;color:var(--orange)}
+details.guide[open] summary::after{content:"－"}
+.tabs{display:flex;gap:6px;margin:12px 0 10px}
+.tabs button{flex:1;font:inherit;font-size:13px;font-weight:700;padding:8px 0;border-radius:10px;border:1.5px solid var(--chip);background:var(--chip);color:var(--grey);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--white)}
+.howto{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;counter-reset:st}
+.howto li{display:grid;grid-template-columns:24px 1fr;gap:8px;font-size:14px;line-height:1.5;counter-increment:st}
+.howto li::before{content:counter(st);width:22px;height:22px;border-radius:50%;background:var(--peach);color:var(--orange);font-weight:800;font-size:12px;display:grid;place-items:center;margin-top:1px}
+.path{display:inline-block;background:var(--bg);border:1px solid var(--chip);border-radius:6px;padding:0 6px;font-weight:700;font-size:13px}
+.tip{font-size:12px;color:var(--grey);margin:10px 0 0;line-height:1.5}
+@media (prefers-reduced-motion:reduce){.thumb::after,.spin.flash{animation:none}}
+[hidden]{display:none!important}
+</style>
+
+<div class="stage">
+  <nav class="stepnav" id="stepnav" aria-label="진행 단계">
+    <span data-s="1" aria-current="step">STEP 1. 입력</span><i>›</i>
+    <span data-s="2">STEP 2. 자각</span><i>›</i>
+    <span data-s="3">STEP 3. 행동</span>
+  </nav>
+
+  <!-- STEP 1. 입력 -->
+  <main class="phone" id="s1">
+    <h1>나, 스마트폰<br>많이 쓰는 편일까?</h1>
+    <section class="card">
+      <p class="bar">연령대를 선택해주세요</p>
+      <div class="ages" id="ages" role="group" aria-label="연령대">
+        <button type="button" data-age="20" aria-pressed="false">20대</button>
+        <button type="button" data-age="30" aria-pressed="false">30대</button>
+        <button type="button" data-age="40" aria-pressed="false">40대</button>
+        <button type="button" data-age="50" aria-pressed="false">50대</button>
+      </div>
+    </section>
+    <form class="card" id="form" novalidate>
+      <p class="bar">하루 평균 스마트폰 사용시간</p>
+      <input type="file" id="shot" accept="image/*" hidden>
+      <button type="button" class="shoot" id="shootBtn">
+        <span class="cam"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+        <span><b>캡처 올려서 자동 입력</b><small>스크린타임 화면 캡처를 고르면 시간을 읽어 채워요. 사진은 휴대폰 안에서만 읽고 저장·전송하지 않아요</small></span>
+      </button>
+      <div class="scan" id="scan" hidden>
+        <div class="thumb"><img id="thumbImg" alt="올린 캡처"></div>
+        <div style="flex:1;min-width:0">
+          <p class="msg" id="scanMsg">캡처에서 사용시간을 찾는 중…</p>
+          <div class="prog" id="prog"><i id="progBar"></i></div>
+          <div class="cands" id="cands" hidden></div>
+        </div>
+      </div>
+      <div class="or">또는 직접 입력</div>
+      <div class="time">
+        <div class="spin"><input id="hh" inputmode="numeric" maxlength="2" placeholder="5" aria-label="시간">
+          <div class="arrows"><button type="button" data-t="hh" data-d="1" aria-label="시간 올리기">▲</button><button type="button" data-t="hh" data-d="-1" aria-label="시간 내리기">▼</button></div></div>
+        <span class="unit">시간</span>
+        <div class="spin"><input id="mm" inputmode="numeric" maxlength="2" placeholder="32" aria-label="분">
+          <div class="arrows"><button type="button" data-t="mm" data-d="1" aria-label="분 올리기">▲</button><button type="button" data-t="mm" data-d="-1" aria-label="분 내리기">▼</button></div></div>
+        <span class="unit">분</span>
+      </div>
+      <details class="guide" id="guide">
+        <summary>내 하루 평균 사용시간, 어디서 봐요?</summary>
+        <div class="tabs" role="tablist" id="osTabs">
+          <button type="button" role="tab" data-os="ios" aria-selected="true">iPhone</button>
+          <button type="button" role="tab" data-os="galaxy" aria-selected="false">갤럭시</button>
+          <button type="button" role="tab" data-os="android" aria-selected="false">기타 Android</button>
+        </div>
+        <ol class="howto" data-os="ios">
+          <li><span><span class="path">설정</span> › <span class="path">스크린 타임</span>을 열어요.</span></li>
+          <li><span><span class="path">모든 활동 보기</span>를 눌러요. (iOS 버전에 따라 '모든 앱 및 웹사이트 활동 보기')</span></li>
+          <li><span>위쪽 <span class="path">주</span> 탭에 보이는 <b>일일 평균</b>이 내 하루 평균이에요.</span></li>
+        </ol>
+        <ol class="howto" data-os="galaxy" hidden>
+          <li><span><span class="path">설정</span> › <span class="path">디지털 웰빙 및 자녀 보호</span>를 열어요.</span></li>
+          <li><span>가운데 원 그래프에 <b>오늘 사용 시간</b>이 보여요.</span></li>
+          <li><span>그래프를 누르면 요일별 사용 시간이 나와요. 평소 하루에 가까운 값을 넣어주세요.</span></li>
+        </ol>
+        <ol class="howto" data-os="android" hidden>
+          <li><span><span class="path">설정</span> › <span class="path">디지털 웰빙 및 자녀 보호 기능</span>을 열어요.</span></li>
+          <li><span>원 그래프 가운데에 <b>오늘 사용 시간</b>이 보여요.</span></li>
+          <li><span>그래프를 누르면 지난 며칠 기록을 볼 수 있어요. 평소 하루에 가까운 값을 넣어주세요.</span></li>
+        </ol>
+        <p class="tip">그 화면을 캡처해서 위 버튼으로 올리면 시간이 자동으로 입력돼요. 메뉴 이름은 OS 버전·기종에 따라 조금 다를 수 있어요.</p>
+      </details>
+    </form>
+    <p class="err" id="err" role="alert" hidden></p>
+    <button class="btn" type="submit" form="form" id="go">내 사용수준 확인하기</button>
+    <p class="note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7.5v.01"/></svg>별도의 로그인 없이 바로 확인할 수 있어요.</p>
+    <p class="note" style="margin-top:-8px"><button type="button" class="sample" id="sample">예시 값(20대 · 5시간 32분)으로 해보기</button></p>
   </main>
-  <script src="script.js"></script>
-</body>
-</html>
+
+  <!-- STEP 2. 자각 -->
+  <main class="phone" id="s2" hidden>
+    <h1 class="center">오늘의 Am I Over? Report</h1>
+    <div class="tile warm">
+      <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg></div>
+      <div><p class="k">나의 사용시간</p><p class="v o" id="myTime"></p></div>
+    </div>
+    <div class="tile cool">
+      <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="8" r="3.2"/><circle cx="16.5" cy="9" r="2.6"/><path d="M2.5 19c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6z"/><path d="M14.6 13.3c3.4-.5 6.9 1.4 6.9 5.7h-4.6c0-2.2-.8-4.2-2.3-5.7z"/></svg></div>
+      <div><p class="k" id="avgLabel">20대 평균</p><p class="v" id="avgTime"></p></div>
+    </div>
+    <div class="tile warm">
+      <div class="ico" id="dirIco"></div>
+      <div><p class="k">평균보다</p><p class="v o m" id="diffLine"></p><p class="s" id="ratioLine"></p></div>
+    </div>
+    <div class="cmp" aria-label="평균과 내 사용시간 비교">
+      <div class="row me"><span class="who">나</span><div class="track"><div class="fill me" id="barMe"></div></div><span class="t" id="barMeT"></span></div>
+      <div class="row"><span class="who" id="barAvgN">20대 평균</span><div class="track"><div class="fill avg" id="barAvg"></div></div><span class="t" id="barAvgT"></span></div>
+    </div>
+    <div class="face">
+      <div class="emoji" id="emoji" aria-hidden="true"></div>
+      <p class="verdict" id="verdict"></p>
+      <p class="sub" id="subVerdict"></p>
+    </div>
+    <button class="btn" type="button" id="toS3">줄이면 얼마나 달라질까?</button>
+    <div class="links"><button class="textbtn" type="button" id="back1">값 다시 입력하기</button></div>
+  </main>
+
+  <!-- STEP 3. 행동 -->
+  <main class="phone" id="s3" hidden>
+    <h1 id="s3Title">조금만 줄여도<br>이만큼의 시간이 생겨요</h1>
+    <section class="card">
+      <p class="head"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="reclaimLabel"></span></p>
+      <div class="box"><p class="v">하루 <span id="dayGain"></span></p><p class="s">을 되찾을 수 있어요</p></div>
+    </section>
+    <section class="card">
+      <p class="head"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14h.01M12 14h.01M16.5 14h.01M7.5 17.5h.01M12 17.5h.01" stroke-width="2.6" stroke-linecap="round"/></svg>1년이면</p>
+      <div class="box"><p class="v">약 <span id="yearGain"></span></p><p class="s">나를 위한 시간으로 바꿀 수 있어요</p></div>
+    </section>
+    <section class="card">
+      <p class="head g"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="8" r="3.2"/><circle cx="16.5" cy="9" r="2.6"/><path d="M2.5 19c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6z"/><path d="M14.6 13.3c3.4-.5 6.9 1.4 6.9 5.7h-4.6c0-2.2-.8-4.2-2.3-5.7z"/></svg><span id="crowdLabel">오늘 연수 20대 평균</span></p>
+      <div class="box" id="crowdBox"><p class="wait" id="crowdText">불러오는 중…</p><p class="s" id="crowdSub" hidden></p></div>
+    </section>
+    <p class="foot">※ 동일 연령대 입력자가 5명 미만이면 표시되지 않아요.<br>입력한 연령대와 사용시간만 익명으로 참가자 평균에 반영돼요.</p>
+    <div class="links">
+      <button class="textbtn" type="button" id="back2">결과 다시 보기</button>
+      <button class="textbtn" type="button" id="restart">처음부터 다시</button>
+    </div>
+  </main>
+
+  <p class="src" id="src"></p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // 기준 통계: KISDI STAT Report 「스마트폰과 TV의 시간 점유율 경쟁」 [그림 4], 2023년, 이용자 기준 하루 평균(분)
+  var AVG={"20":198.6,"30":163.1,"40":128.1,"50":102.9};
+  var MIN_SHOW=5;
+  var SOURCE="기준 통계: KISDI STAT Report 「스마트폰과 TV의 시간 점유율 경쟁」, 2023년 연령대별 하루 평균 스마트폰 이용시간(이용자 기준). 설문 응답 수치라 기기 스크린타임과 차이가 있을 수 있어요.";
+
+  // ── 계산 로직
+  function fmt(min){var m=Math.round(Math.abs(min)),h=Math.floor(m/60),r=m%60;
+    if(h===0)return r+"분"; if(r===0)return h+"시간"; return h+"시간 "+r+"분";}
+  function tier(ratio){return ratio<90?"good":ratio<110?"mid":"over";}
+  var TIER={
+    good:{emoji:"😄",text:"또래보다 적게 사용하는 편이에요.",sub:"지금 습관을 잘 유지하고 있어요."},
+    mid:{emoji:"🙂",text:"또래와 비슷하게 사용하는 편이에요.",sub:"평균 수준이지만, 조금만 줄여도 시간이 생겨요."},
+    over:{emoji:"😫",text:"또래보다 많이 사용하는 편이에요.",sub:"생각보다 높은 사용 수준입니다."}
+  };
+  function compute(age,minutes){
+    var avg=AVG[age],diff=minutes-avg,ratio=minutes/avg*100,gain=diff>0?diff:30;
+    return {age:age,minutes:minutes,avg:avg,diff:diff,ratio:ratio,tier:tier(ratio),gain:gain,yearHours:gain*365/60,toAvg:diff>0};
+  }
+  window.__amio={compute:compute,fmt:fmt};
+
+  var $=function(id){return document.getElementById(id);};
+  function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+  function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+  var state={age:null,result:null};
+  $("src").textContent=SOURCE;
+
+  function show(n){
+    ["s1","s2","s3"].forEach(function(id,i){$(id).hidden=(i+1)!==n;});
+    $("stepnav").querySelectorAll("span").forEach(function(s){
+      if(+s.dataset.s===n)s.setAttribute("aria-current","step"); else s.removeAttribute("aria-current");});
+    window.scrollTo(0,0);
+    if(n===3)startWatch(); else endWatch();
+  }
+
+  // ── STEP 1
+  $("ages").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b)return; state.age=b.dataset.age;
+    this.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});
+    $("err").hidden=true;
+  });
+  ["hh","mm"].forEach(function(id){$(id).addEventListener("input",function(){this.value=this.value.replace(/[^0-9]/g,"");});});
+  document.querySelectorAll(".arrows button").forEach(function(b){
+    b.addEventListener("click",function(){
+      var el=$(b.dataset.t),max=b.dataset.t==="hh"?24:59,cur=el.value===""?(+el.placeholder):+el.value;
+      var v=cur+(+b.dataset.d); if(v<0)v=max; if(v>max)v=0; el.value=v;
+    });
+  });
+  $("sample").addEventListener("click",function(){
+    $("ages").querySelector('[data-age="20"]').click(); $("hh").value="5"; $("mm").value="32"; $("err").hidden=true;});
+  // ── 가이드 탭
+  $("osTabs").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+    this.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-selected",x===b?"true":"false");});
+    document.querySelectorAll(".howto").forEach(function(o){o.hidden=o.dataset.os!==b.dataset.os;});});
+  (function(){var ua=navigator.userAgent||"";var os=/iPhone|iPad|iPod/.test(ua)?"ios":/SM-|Samsung/i.test(ua)?"galaxy":/Android/.test(ua)?"android":null;
+    if(os&&os!=="ios"){var b=$("osTabs").querySelector('[data-os="'+os+'"]');if(b)b.click();}})();
+
+  // ── 캡처 자동 입력 (브라우저 안에서 글자 인식, 서버 전송 없음)
+  var OCR_BASE="vendor/ocr/", OCR_CDN="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js", ocrWorkerP=null;
+  function absUrl(p){return new URL(p,location.href).href;}
+  function loadScript(src){return new Promise(function(ok,no){if(window.Tesseract)return ok();var s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}
+  var onProg=function(){};
+  function getWorker(){
+    if(!ocrWorkerP){
+      // 같은 폴더의 vendor/ocr를 먼저 쓰고, 없으면(단일 HTML로 내보낸 경우) 공개 CDN에서 받음
+      var useCdn=false;
+      ocrWorkerP=loadScript(absUrl(OCR_BASE+"tesseract.min.js")).catch(function(){useCdn=true;return loadScript(OCR_CDN);}).then(function(){
+        if(useCdn)return "cdn";
+        // Claude Artifact는 .gz 파일을 제공할 수 없어, 같은 데이터를 base64 텍스트로 받아
+        // 인식 도구의 캐시(IndexedDB)에 먼저 넣어 두고 캐시에서 읽게 함
+        if(window.claude&&typeof window.claude.use==="function"){
+          return fetch(absUrl(OCR_BASE+"lang/kor.traineddata.b64.txt")).then(function(r){if(!r.ok)throw new Error("lang");return r.text();})
+            .then(function(b64){var bin=atob(b64.trim()),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+              return new Promise(function(ok,no){var rq=indexedDB.open("keyval-store",1);
+                rq.onupgradeneeded=function(){rq.result.createObjectStore("keyval");};
+                rq.onerror=function(){no(rq.error);};
+                rq.onsuccess=function(){var db=rq.result,tx=db.transaction("keyval","readwrite");tx.objectStore("keyval").put(u,"./kor.traineddata");
+                  tx.oncomplete=function(){db.close();ok("readOnly");};tx.onerror=function(){no(tx.error);};};});});
+        }
+        return "none";
+      }).then(function(cacheMethod){
+        if(cacheMethod==="cdn")return Tesseract.createWorker("kor",1,{logger:function(m){onProg(m);}});
+        return Tesseract.createWorker("kor",1,{workerPath:absUrl(OCR_BASE+"worker.min.js"),corePath:absUrl(OCR_BASE+"core"),
+          langPath:absUrl(OCR_BASE+"lang"),gzip:true,cacheMethod:cacheMethod,logger:function(m){onProg(m);}});
+      });
+      ocrWorkerP.catch(function(){ocrWorkerP=null;});
+    }
+    return ocrWorkerP;
+  }
+  function prepImage(file){ // 크기 맞추기 + 흑백 + 다크모드 반전
+    return new Promise(function(ok,no){var url=URL.createObjectURL(file),img=new Image();
+      img.onload=function(){var w=img.naturalWidth,h=img.naturalHeight,sc=Math.min(2,Math.max(1,1100/w));if(w*sc>1600)sc=1600/w;
+        var c=document.createElement("canvas");c.width=Math.round(w*sc);c.height=Math.round(h*sc);var x=c.getContext("2d");x.drawImage(img,0,0,c.width,c.height);
+        var d=x.getImageData(0,0,c.width,c.height),px=d.data,sum=0,i;
+        for(i=0;i<px.length;i+=4){var g=.299*px[i]+.587*px[i+1]+.114*px[i+2];px[i]=px[i+1]=px[i+2]=g;sum+=g;}
+        if(sum/(px.length/4)<110){for(i=0;i<px.length;i+=4){px[i]=px[i+1]=px[i+2]=255-px[i];}}
+        x.putImageData(d,0,0);URL.revokeObjectURL(url);ok(c);};
+      img.onerror=function(){no(new Error("img"));};img.src=url;});
+  }
+  // 인식된 글자에서 "○시간 ○분" 후보를 찾아 점수화: 평균·오늘 같은 단어 근처 > 분까지 있는 값 > 큰 값
+  function parseTimes(text){
+    var t=(text||"").replace(/[|]/g,"1").replace(/\s+/g,""),out=[],seen={},m;
+    var re=/(\d{1,2})시[간긴칸갼]((\d{1,2})[분뿐븐])?|(\d{1,2})[분뿐븐]|(\d{1,2})h(?:r|rs)?((\d{1,2})m(?:in)?)?/gi;
+    while((m=re.exec(t))){
+      var h=+(m[1]||m[5]||0),mi=+(m[3]||m[7]||0);
+      if(m[4]&&!m[1]){h=0;mi=+m[4];}
+      if(mi>59||h>24)continue; var total=h*60+mi; if(total<=0||total>1440)continue;
+      var before=t.slice(Math.max(0,m.index-14),m.index),score=0;
+      if(/평균|average/i.test(before))score+=6; else if(/오늘|사용시간|화면시간|스크린타임|today/i.test(before))score+=4;
+      if(/총|주간|이번주|week/i.test(before.slice(-4)))score-=3;
+      if(h>0&&(m[3]||m[7]))score+=2; if(h===0)score-=1;
+      if(seen[total]!=null){out[seen[total]].score=Math.max(out[seen[total]].score,score);continue;}
+      seen[total]=out.length; out.push({min:total,score:score,idx:m.index});
+    }
+    out.sort(function(a,b){return b.score-a.score||b.min-a.min;});
+    return out;
+  }
+  window.__amio.parseTimes=parseTimes;
+  function setTime(min){
+    $("hh").value=Math.floor(min/60); $("mm").value=min%60; $("err").hidden=true;
+    document.querySelectorAll(".spin").forEach(function(el){el.classList.remove("flash");void el.offsetWidth;el.classList.add("flash");});
+  }
+  $("shootBtn").addEventListener("click",function(){$("shot").value="";$("shot").click();});
+  $("shot").addEventListener("change",function(){
+    var f=this.files&&this.files[0]; if(!f)return;
+    var scan=$("scan"),msg=$("scanMsg"),bar=$("progBar"),cands=$("cands");
+    scan.hidden=false; scan.classList.remove("done"); cands.hidden=true; $("prog").hidden=false; bar.style.width="5%";
+    $("thumbImg").src=URL.createObjectURL(f);
+    msg.textContent=ocrWorkerP?"캡처에서 사용시간을 찾는 중…":"인식 도구 준비 중… (처음 한 번만 몇 초 걸려요)";
+    onProg=function(m){if(m.status==="recognizing text"){msg.textContent="캡처에서 사용시간을 찾는 중…";bar.style.width=(30+m.progress*70)+"%";}
+      else if(typeof m.progress==="number"){bar.style.width=(5+m.progress*25)+"%";}};
+    Promise.all([getWorker(),prepImage(f)]).then(function(a){return a[0].recognize(a[1]);}).then(function(res){
+      var c=parseTimes(res.data.text); scan.classList.add("done"); $("prog").hidden=true;
+      if(!c.length){msg.innerHTML="사용시간을 찾지 못했어요. 아래 안내 화면을 캡처했는지 확인하거나 직접 입력해주세요.";$("guide").open=true;return;}
+      setTime(c[0].min);
+      msg.innerHTML="<b>"+fmt(c[0].min)+"</b>을 찾았어요. 맞는지 확인하고, 다르면 고쳐주세요.";
+      if(c.length>1){cands.innerHTML="";c.slice(0,4).forEach(function(x,i){var b=document.createElement("button");b.type="button";b.textContent=fmt(x.min);
+        b.setAttribute("aria-pressed",i===0?"true":"false");b.addEventListener("click",function(){setTime(x.min);
+          cands.querySelectorAll("button").forEach(function(y){y.setAttribute("aria-pressed",y===b?"true":"false");});
+          msg.innerHTML="<b>"+fmt(x.min)+"</b>으로 바꿨어요.";});cands.appendChild(b);});
+        cands.hidden=false;}
+      if(!state.age){var e=$("err");e.textContent="연령대도 선택해주세요.";e.hidden=false;}
+    }).catch(function(){scan.classList.add("done");$("prog").hidden=true;
+      msg.textContent="이 화면에서는 자동 인식을 쓸 수 없어요. 직접 입력해주세요.";});
+  });
+
+  function fail(m){var e=$("err");e.textContent=m;e.hidden=false;}
+  $("form").addEventListener("submit",function(e){
+    e.preventDefault();
+    if(!state.age)return fail("연령대를 먼저 선택해주세요.");
+    var hs=$("hh").value.trim(),ms=$("mm").value.trim();
+    if(hs===""&&ms==="")return fail("하루 평균 사용시간을 입력해주세요.");
+    var h=+(hs||0),m=+(ms||0);
+    if(m>59)return fail("분은 0~59 사이로 입력해주세요.");
+    var total=h*60+m;
+    if(total<=0)return fail("사용시간이 0분이에요. 다시 확인해주세요.");
+    if(total>1440)return fail("하루는 24시간이에요. 24시간 이하로 입력해주세요.");
+    $("err").hidden=true; state.result=compute(state.age,total); renderResult(); show(2);
+  });
+
+  // ── STEP 2
+  var UP='<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 11h5v11h6V11h5z"/></svg>';
+  var DOWN='<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22l8-9h-5V2H9v11H4z"/></svg>';
+  var EQ='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 9h14M5 15h14"/></svg>';
+  function renderResult(){
+    var r=state.result,T=TIER[r.tier],al=r.age+"대",d=Math.round(r.diff);
+    $("myTime").textContent=fmt(r.minutes);
+    $("avgLabel").textContent=al+" 평균"; $("avgTime").textContent=fmt(r.avg);
+    $("dirIco").innerHTML=d>0?UP:d<0?DOWN:EQ;
+    $("diffLine").textContent=d===0?"평균과 같아요":fmt(r.diff)+(d>0?" 더 사용 중":" 덜 사용 중");
+    $("ratioLine").innerHTML=al+" 평균의 약 <b>"+Math.round(r.ratio)+"%</b> 수준입니다.";
+    var mx=Math.max(r.minutes,r.avg)*1.1;
+    $("barMeT").textContent=fmt(r.minutes); $("barAvgT").textContent=fmt(r.avg); $("barAvgN").textContent=al+" 평균";
+    $("barMe").style.width="0"; $("barAvg").style.width="0";
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      $("barMe").style.width=(r.minutes/mx*100)+"%"; $("barAvg").style.width=(r.avg/mx*100)+"%";});});
+    $("emoji").textContent=T.emoji; $("verdict").textContent=T.text; $("subVerdict").textContent=T.sub;
+  }
+  $("toS3").addEventListener("click",function(){renderAction(); show(3); submitOnce();});
+  $("back1").addEventListener("click",function(){show(1);});
+
+  // ── STEP 3
+  function renderAction(){
+    var r=state.result,al=r.age+"대";
+    if(r.toAvg){$("s3Title").innerHTML="조금만 줄여도<br>이만큼의 시간이 생겨요"; $("reclaimLabel").textContent=al+" 평균 수준까지 줄인다면";}
+    else{$("s3Title").innerHTML="이미 평균보다 적어요.<br>30분만 더 줄여볼까요?"; $("reclaimLabel").textContent="지금보다 하루 30분만 줄인다면";}
+    $("dayGain").textContent=fmt(r.gain);
+    $("yearGain").textContent=Math.round(r.yearHours).toLocaleString("ko-KR")+"시간";
+    $("crowdLabel").textContent="오늘 연수 "+al+" 평균";
+    renderCrowd(lastStats);
+  }
+  $("back2").addEventListener("click",function(){show(2);});
+  $("restart").addEventListener("click",function(){
+    state={age:null,result:null}; $("hh").value=""; $("mm").value="";
+    $("ages").querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed","false");}); show(1);
+  });
+
+  // ── 참가자 평균: Claude Artifact → claude.use("db") / Vercel → /api
+  //   300명 동시 접속 대비: STEP 3을 보고 있을 때만 조회(10~13초 간격, 탭이 숨으면 중지),
+  //   서버는 CDN 5초 캐시, 제출은 브라우저 고유 id로 한 번만 집계(재시도해도 중복 없음)
+  var lastStats=null,storeFailed=false,store=null,stopWatch=null,onS3=false;
+  function sid(){var k="amio_sid",v=lsGet(k);
+    if(!v){v=(Date.now().toString(36)+Math.random().toString(36).slice(2,12)).replace(/[^a-z0-9]/g,"");lsSet(k,v);} return v;}
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+  function apiStore(){
+    return {
+      submit:function(age,minutes){var body=JSON.stringify({id:sid(),age:age,minutes:minutes});
+        function once(){return fetch("/api/submit",{method:"POST",headers:{"Content-Type":"application/json"},body:body})
+          .then(function(r){if(!r.ok){var e=new Error(r.status);e.status=r.status;throw e;}return r.json();});}
+        // 실패하면 0.6~2초 뒤 한 번 더 (동시에 몰리지 않도록 무작위 간격)
+        return once().catch(function(e){if(e.status===400)throw e;return sleep(600+Math.random()*1400).then(once);});},
+      watch:function(cb){var timer=null,alive=true;
+        function tick(){if(!alive)return;
+          if(document.hidden){timer=setTimeout(tick,3000);return;}
+          fetch("/api/stats").then(function(r){if(!r.ok)throw 0;return r.json();})
+            .then(function(j){cb(j.groups||{});}).catch(function(){cb(null);})
+            .then(function(){if(alive)timer=setTimeout(tick,10000+Math.random()*3000);});}
+        tick();
+        return function(){alive=false;clearTimeout(timer);};}
+    };
+  }
+  function dbStore(db,user){
+    var uidP=user&&user.id?user.id().catch(function(){return null;}):Promise.resolve(null);
+    return {
+      submit:function(age,minutes){return uidP.then(function(uid){
+        var ref=uid?db.collection("entries").doc(uid):db.collection("entries").doc();
+        return ref.set({age:age,minutes:minutes,at:new Date().toISOString()});});},
+      watch:function(cb){return db.collection("entries").limit(1000).onSnapshot(function(snap){
+        var g={};
+        snap.docs.forEach(function(d){var v=d.data();if(!v||!AVG[v.age])return;var m=+v.minutes;if(!(m>0&&m<=1440))return;
+          g[v.age]=g[v.age]||{n:0,sum:0};g[v.age].n++;g[v.age].sum+=m;});
+        var out={};Object.keys(g).forEach(function(k){out[k]={n:g[k].n,avg:g[k].n>=MIN_SHOW?g[k].sum/g[k].n:null};});
+        cb(out);},function(){cb(null);});}
+    };
+  }
+  var storeReady=(window.claude&&typeof window.claude.use==="function"
+    ? Promise.all([window.claude.use("db"),window.claude.use("user").catch(function(){return null;})]).then(function(a){return a[0]?dbStore(a[0],a[1]):null;}).catch(function(){return null;})
+    : Promise.resolve(apiStore())).then(function(s){store=s;return s;});
+  function startWatch(){
+    onS3=true;
+    storeReady.then(function(s){
+      if(!s){storeFailed=true;renderCrowd(null);return;}
+      if(stopWatch||!onS3)return;
+      stopWatch=s.watch(function(g){if(g===null){if(!lastStats){storeFailed=true;renderCrowd(null);}return;}storeFailed=false;lastStats=g;renderCrowd(g);});
+    });
+  }
+  function endWatch(){onS3=false; if(stopWatch){stopWatch();stopWatch=null;}}
+  function submitOnce(){
+    if(lsGet("amio_submitted"))return;
+    var r=state.result;
+    storeReady.then(function(s){if(!s)return;
+      return s.submit(r.age,r.minutes).then(function(res){lsSet("amio_submitted",new Date().toISOString());
+        if(res&&res.groups){lastStats=res.groups;renderCrowd(res.groups);}});
+    }).catch(function(){ /* 다음에 STEP 3을 열 때 다시 시도 */ });
+  }
+  function renderCrowd(g){
+    if(!state.result)return;
+    var t=$("crowdText"),box=$("crowdBox");
+    if(!g){t.className="wait";t.textContent=storeFailed?"지금은 참가자 평균을 불러올 수 없어요.":"불러오는 중…";return;}
+    var x=g[state.result.age]||{n:0,avg:null};
+    var sl=$("crowdSub");
+    if(x.avg!=null&&x.n>=MIN_SHOW){t.className="v";t.textContent=fmt(x.avg);
+      var d=Math.round(state.result.minutes-x.avg);
+      sl.textContent="참가자 "+x.n+"명 기준 · "+(d===0?"나와 같아요":"나는 "+fmt(d)+(d>0?" 더":" 덜")+" 사용 중"); sl.hidden=false;}
+    else{t.className="wait";t.textContent="지금 "+x.n+"명 참여 · "+(MIN_SHOW-x.n)+"명 더 모이면 공개돼요"; sl.hidden=true;}
+  }
+})();
+</script>
+
+</body></html>
