@@ -26,9 +26,11 @@ h1.center{text-align:center;font-size:22px}
 .card{border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--white)}
 .bar{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;margin:0}
 .bar::before{content:"";width:4px;height:18px;background:var(--orange);border-radius:1px}
-.ages{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.ages button{font:inherit;font-size:16px;padding:12px 0;border-radius:10px;border:1.5px solid var(--chip);background:var(--chip);color:var(--ink);cursor:pointer}
-.ages button[aria-pressed="true"]{background:var(--peach);border-color:var(--orange-2);color:var(--orange);font-weight:700}
+.agein{display:flex;align-items:center;gap:8px}
+.agein .spin{flex:0 0 96px;padding-right:14px}
+.grp{margin-left:auto;font-size:14px;font-weight:700;padding:8px 12px;border-radius:999px;background:var(--chip);color:var(--grey-2);white-space:nowrap}
+.grp.on{background:var(--peach);color:var(--orange)}
+.hint{font-size:13px;color:var(--grey);margin:0;line-height:1.5}
 .time{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .spin{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:10px;padding:4px 4px 4px 14px;flex:1 1 0;min-width:0}
 .spin:focus-within{border-color:var(--orange-2)}
@@ -41,7 +43,7 @@ h1.center{text-align:center;font-size:22px}
 .btn{font:inherit;font-weight:700;font-size:17px;padding:16px;border:0;border-radius:14px;background:var(--orange);color:var(--white);cursor:pointer;width:100%;box-shadow:0 6px 14px rgba(253,81,8,.22)}
 .btn:hover{background:#E84A07}
 .btn:disabled{opacity:.5;cursor:default}
-.btn:focus-visible,.ages button:focus-visible,.textbtn:focus-visible,.arrows button:focus-visible{outline:3px solid var(--orange-3);outline-offset:2px}
+.btn:focus-visible,.textbtn:focus-visible,.arrows button:focus-visible{outline:3px solid var(--orange-3);outline-offset:2px}
 .note{display:flex;align-items:center;gap:6px;justify-content:center;color:var(--grey);font-size:13px;margin:0;text-align:center}
 .err{color:var(--orange);font-weight:700;font-size:14px;margin:0;text-align:center}
 
@@ -140,13 +142,13 @@ details.guide[open] summary::after{content:"－"}
   <main class="phone" id="s1">
     <h1>나, 스마트폰<br>많이 쓰는 편일까?</h1>
     <section class="card">
-      <p class="bar">연령대를 선택해주세요</p>
-      <div class="ages" id="ages" role="group" aria-label="연령대">
-        <button type="button" data-age="20" aria-pressed="false">20대</button>
-        <button type="button" data-age="30" aria-pressed="false">30대</button>
-        <button type="button" data-age="40" aria-pressed="false">40대</button>
-        <button type="button" data-age="50" aria-pressed="false">50대</button>
+      <p class="bar"><label for="age">나이를 입력해주세요</label></p>
+      <div class="agein">
+        <div class="spin"><input id="age" inputmode="numeric" maxlength="3" placeholder="29" autocomplete="off"></div>
+        <span class="unit">세</span>
+        <span class="grp" id="grp" aria-live="polite">또래 그룹</span>
       </div>
+      <p class="hint">만 나이 기준으로 입력해주세요. 입력한 나이를 기준으로 또래 그룹을 자동으로 찾아드려요.</p>
     </section>
     <form class="card" id="form" novalidate>
       <p class="bar">하루 평균 스마트폰 사용시간</p>
@@ -200,7 +202,7 @@ details.guide[open] summary::after{content:"－"}
     <p class="err" id="err" role="alert" hidden></p>
     <button class="btn" type="submit" form="form" id="go">내 사용수준 확인하기</button>
     <p class="note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7.5v.01"/></svg>별도의 로그인 없이 바로 확인할 수 있어요.</p>
-    <p class="note" style="margin-top:-8px"><button type="button" class="sample" id="sample">예시 값(20대 · 5시간 32분)으로 해보기</button></p>
+    <p class="note" style="margin-top:-8px"><button type="button" class="sample" id="sample">예시 값(29세 · 6시간 10분)으로 해보기</button></p>
   </main>
 
   <!-- STEP 2. 자각 -->
@@ -275,7 +277,7 @@ details.guide[open] summary::after{content:"－"}
     over:{emoji:"😫",text:"또래보다 많이 사용하는 편이에요.",sub:"생각보다 높은 사용 수준입니다."}
   };
   function compute(age,minutes){
-    var avg=AVG[age],diff=minutes-avg,ratio=minutes/avg*100,gain=diff>0?diff:30;
+    var avg=AVG[age],diff=minutes-avg,ratio=minutes/avg*100,gain=diff>0?diff:Math.min(30,minutes);
     return {age:age,minutes:minutes,avg:avg,diff:diff,ratio:ratio,tier:tier(ratio),gain:gain,yearHours:gain*365/60,toAvg:diff>0};
   }
   window.__amio={compute:compute,fmt:fmt,ageLabel:ageLabel,AVG:AVG};
@@ -295,11 +297,14 @@ details.guide[open] summary::after{content:"－"}
   }
 
   // ── STEP 1
-  $("ages").addEventListener("click",function(e){
-    var b=e.target.closest("button"); if(!b)return; state.age=b.dataset.age;
-    this.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});
-    $("err").hidden=true;
-  });
+  // 만 나이 → 연령대 (10세 미만은 기준 통계가 없어 비교 불가, 70세 이상은 한 그룹)
+  function ageGroup(n){return n>=10&&n<=120?String(Math.min(70,Math.floor(n/10)*10)):null;}
+  function syncAge(){
+    var v=$("age").value.trim(),g=v===""?null:ageGroup(+v),el=$("grp");
+    state.age=g; el.textContent=g?ageLabel(g)+(g==="70"?"과":"와")+" 비교해요":"또래 그룹"; el.classList.toggle("on",!!g);
+    if(g)$("err").hidden=true;
+  }
+  $("age").addEventListener("input",function(){this.value=this.value.replace(/[^0-9]/g,"");syncAge();});
   ["hh","mm"].forEach(function(id){$(id).addEventListener("input",function(){this.value=this.value.replace(/[^0-9]/g,"");});});
   document.querySelectorAll(".arrows button").forEach(function(b){
     b.addEventListener("click",function(){
@@ -308,7 +313,7 @@ details.guide[open] summary::after{content:"－"}
     });
   });
   $("sample").addEventListener("click",function(){
-    $("ages").querySelector('[data-age="20"]').click(); $("hh").value="5"; $("mm").value="32"; $("err").hidden=true;});
+    $("age").value="29"; syncAge(); $("hh").value="6"; $("mm").value="10"; $("err").hidden=true;});
   // ── 가이드 탭
   $("osTabs").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
     this.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-selected",x===b?"true":"false");});
@@ -400,7 +405,7 @@ details.guide[open] summary::after{content:"－"}
           cands.querySelectorAll("button").forEach(function(y){y.setAttribute("aria-pressed",y===b?"true":"false");});
           msg.innerHTML="<b>"+fmt(x.min)+"</b>으로 바꿨어요.";});cands.appendChild(b);});
         cands.hidden=false;}
-      if(!state.age){var e=$("err");e.textContent="연령대도 선택해주세요.";e.hidden=false;}
+      if(!state.age){var e=$("err");e.textContent="나이도 입력해주세요.";e.hidden=false;}
     }).catch(function(){scan.classList.add("done");$("prog").hidden=true;
       msg.textContent="이 화면에서는 자동 인식을 쓸 수 없어요. 직접 입력해주세요.";});
   });
@@ -408,7 +413,10 @@ details.guide[open] summary::after{content:"－"}
   function fail(m){var e=$("err");e.textContent=m;e.hidden=false;}
   $("form").addEventListener("submit",function(e){
     e.preventDefault();
-    if(!state.age)return fail("연령대를 먼저 선택해주세요.");
+    var av=$("age").value.trim();
+    if(av==="")return fail("나이를 입력해주세요.");
+    if(+av<10)return fail("10세 이상부터 또래 평균과 비교할 수 있어요.");
+    if(!state.age)return fail("나이를 다시 확인해주세요.");
     var hs=$("hh").value.trim(),ms=$("mm").value.trim();
     if(hs===""&&ms==="")return fail("하루 평균 사용시간을 입력해주세요.");
     var h=+(hs||0),m=+(ms||0);
@@ -453,7 +461,7 @@ details.guide[open] summary::after{content:"－"}
   $("back2").addEventListener("click",function(){show(2);});
   $("restart").addEventListener("click",function(){
     state={age:null,result:null}; $("hh").value=""; $("mm").value="";
-    $("ages").querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed","false");}); show(1);
+    $("age").value=""; syncAge(); show(1);
   });
 
   // ── 참가자 평균: Claude Artifact → claude.use("db") / Vercel → /api
