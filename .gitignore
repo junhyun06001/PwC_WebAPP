@@ -5,3 +5,7 @@
 Thumbs.db
 node_modules/
 .claude/
+
+# 시연 영상 도구 (설치 파일·결과물은 올리지 않음)
+tools/demo-video/node_modules/
+tools/demo-video/output/

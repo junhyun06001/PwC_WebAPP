@@ -1,0 +1,5 @@
+# 배포에 필요 없는 폴더
+tools/
+docs/
+data/
+PROMPT_LOG.md
