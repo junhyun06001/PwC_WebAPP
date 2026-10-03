@@ -261,11 +261,12 @@ details.guide[open] summary::after{content:"－"}
 <script>
 (function(){
   "use strict";
-  // 기준 통계: 「2025년 방송매체 이용행태 조사」 [그림 2-8-3] 연령별 스마트폰 하루 평균 이용시간(음성통화 제외, 이용자 기준, 분)
+  // 기준 통계: 방송미디어통신위원회·한국정보통신진흥협회 「2025 방송매체 이용행태조사」(2025.12.) [그림 2-8-3]
+  // 연령별 스마트폰 하루 평균 이용시간(음성통화 제외, 이용자 기준, 분). 조사 대상이 만 13세 이상이라 10대 = 13~19세
   var AVG={"10":181,"20":197,"30":162,"40":140,"50":119,"60":87,"70":54};
   function ageLabel(k){return k==="70"?"70세 이상":k+"대";}
   var MIN_SHOW=5;
-  var SOURCE="기준 통계: 「2025년 방송매체 이용행태 조사」 연령별 스마트폰 하루 평균 이용시간(음성통화 제외, 스마트폰 이용자 7,969명). 설문 응답 수치라 기기 스크린타임과 차이가 있을 수 있어요.";
+  var SOURCE="기준 통계: 방송미디어통신위원회·한국정보통신진흥협회 「2025 방송매체 이용행태조사」(2025.12.) 연령별 스마트폰 하루 평균 이용시간(음성통화 제외, 13세 이상 스마트폰 이용자 7,969명). 설문 응답 수치라 기기 스크린타임과 차이가 있을 수 있어요.";
 
   // ── 계산 로직
   function fmt(min){var m=Math.round(Math.abs(min)),h=Math.floor(m/60),r=m%60;
@@ -297,8 +298,8 @@ details.guide[open] summary::after{content:"－"}
   }
 
   // ── STEP 1
-  // 만 나이 → 연령대 (10세 미만은 기준 통계가 없어 비교 불가, 70세 이상은 한 그룹)
-  function ageGroup(n){return n>=10&&n<=120?String(Math.min(70,Math.floor(n/10)*10)):null;}
+  // 만 나이 → 연령대 (기준 통계가 13세 이상 조사라 13세 미만은 비교 불가, 70세 이상은 한 그룹)
+  function ageGroup(n){return n>=13&&n<=120?String(Math.min(70,Math.floor(n/10)*10)):null;}
   function syncAge(){
     var v=$("age").value.trim(),g=v===""?null:ageGroup(+v),el=$("grp");
     state.age=g; el.textContent=g?ageLabel(g)+(g==="70"?"과":"와")+" 비교해요":"또래 그룹"; el.classList.toggle("on",!!g);
@@ -415,7 +416,7 @@ details.guide[open] summary::after{content:"－"}
     e.preventDefault();
     var av=$("age").value.trim();
     if(av==="")return fail("나이를 입력해주세요.");
-    if(+av<10)return fail("10세 이상부터 또래 평균과 비교할 수 있어요.");
+    if(+av<13)return fail("만 13세 이상부터 또래 평균과 비교할 수 있어요.");
     if(!state.age)return fail("나이를 다시 확인해주세요.");
     var hs=$("hh").value.trim(),ms=$("mm").value.trim();
     if(hs===""&&ms==="")return fail("하루 평균 사용시간을 입력해주세요.");
