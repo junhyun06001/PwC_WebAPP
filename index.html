@@ -462,7 +462,7 @@ details.guide[open] summary::after{content:"－"}
   $("back2").addEventListener("click",function(){show(2);});
   $("restart").addEventListener("click",function(){
     state={age:null,result:null}; $("hh").value=""; $("mm").value="";
-    $("age").value=""; syncAge(); show(1);
+    $("age").value=""; syncAge(); $("scan").hidden=true; $("cands").hidden=true; $("err").hidden=true; show(1);
   });
 
   // ── 참가자 평균: Claude Artifact → claude.use("db") / Vercel → /api
